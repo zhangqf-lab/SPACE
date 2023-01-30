@@ -14,7 +14,7 @@ pip install space-srt
 install the latest develop version
 
 ```shell
-git clone https://github.com/ericli0419/SPACE.git
+git clone https://github.com/zhangqf-lab/SPACE.git
 cd SPACE
 python setup.py install
 ```
