@@ -105,9 +105,9 @@ def SPACE(adata,k=20,alpha=0.5,seed=42,GPU=0,epoch=5000,lr=0.005,patience=50,out
     print('Load SPACE model')
     encoder = GAT_Encoder(
         in_channels=num_features,
-        num_heads={'first':heads,'second':heads,'mean':heads,'std':heads},
+        num_heads={'first':heads,'second':heads,'mean':heads},
         hidden_dims=[128,128],
-        dropout=[0.3,0.3,0.3,0.3],
+        dropout=[0.3,0.3],
         concat={'first': True, 'second': True})
     model = SPACE_Graph(encoder= encoder,decoder=None,loss_type=loss_type)
     print(model) 
