@@ -37,5 +37,5 @@ dependencies = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/ericli0419/SPACE"
-"Bug Tracker" = "https://github.com/ericli0419/SPACE/issues"
+"Homepage" = "https://github.com/zhangqf-lab/SPACE"
+"Bug Tracker" = "https://github.com/zhangqf-lab/SPACE/issues"
