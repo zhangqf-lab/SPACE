@@ -40,9 +40,9 @@ setup(name='space',
 
       author='Yuzhe Li',
       author_email='liyuzhezju@gmail.com',
-      url='https://github.com/ericli0419/SPACE',
+      url='https://github.com/zhangqf-lab/SPACE',
       install_requires=requirements,
-      python_requires='>3.6.0',
+      python_requires='>3.7.0',
       license='MIT',
 
       classifiers=[
