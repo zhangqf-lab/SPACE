@@ -25,7 +25,7 @@ from .utils import graph_construction
 
 
 
-def SPACE(adata,k=20,alpha=0.5,seed=42,GPU=0,epoch=5000,lr=0.005,patience=50,outdir='./',loss_type='MSE',save_attn=False,verbose=False,heads=6):
+def SPACE(adata,k=20,graph_const_method='SPACE',alpha=0.5,seed=42,GPU=0,epoch=5000,lr=0.005,patience=50,outdir='./',loss_type='MSE',save_attn=False,verbose=False,heads=6):
     """
     Single-Cell integrative Analysis via Latent feature Extraction
     
@@ -66,16 +66,31 @@ def SPACE(adata,k=20,alpha=0.5,seed=42,GPU=0,epoch=5000,lr=0.005,patience=50,out
     checkpoint
         model.pt contains the variables of the model.
     """
+    from torch_geometric import seed_everything
+    import squidpy as sq
     
     np.random.seed(seed) 
     torch.manual_seed(seed)
     random.seed(seed)
+    seed_everything(seed)
+    torch.set_num_threads(1)  # Suggested for issues with deadlocks, etc.
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)  # if you are using multi-GPU.
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = True
+    torch.backends.cudnn.enabled = True
     
     os.makedirs(outdir, exist_ok=True)
-        
+    
     print('Construct Graph')
-    graph_dict = graph_construction(adata.obsm['spatial'], adata.shape[0],k=k)
-    adj = graph_dict.toarray()
+    if graph_const_method=='SPACE':
+        graph_dict = graph_construction(adata.obsm['spatial'], adata.shape[0],k=k)
+        adj = graph_dict.toarray()
+    elif graph_const_method=='Squidpy':
+        sq.gr.spatial_neighbors(adata, coord_type="generic",n_neighs=k)
+        adj = adata.obsp['spatial_connectivities'].toarray()
+        
     print('Average links: {:.2f}'.format(np.sum(adj>0)/adj.shape[0]))
 
     G = nx.from_numpy_array(adj).to_undirected() 

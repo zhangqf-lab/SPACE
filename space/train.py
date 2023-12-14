@@ -6,10 +6,12 @@ Created on Sun Mar 13 15:09:45 2022
 @author: liyuzhe
 """
 import os
+import random
 import numpy as np
 import torch
 from tqdm.auto import tqdm
-
+from torch_geometric import seed_everything
+import matplotlib.pyplot as plt
 
 def adjust_learning_rate(init_lr, optimizer, iteration,seperation):
     lr = max(init_lr * (0.9 ** (iteration//seperation)), 0.0001)
@@ -74,20 +76,34 @@ class EarlyStopping:
 def train_SPACE(model, train_data, outdir, epoch=5000,lr=0.005, a=0.5,loss_type='MSE',patience=50, GPU=0,seed=42, verbose=False):
     
     np.random.seed(seed)
+    torch.manual_seed(seed)
+    random.seed(seed)
+    seed_everything(seed)
     if torch.cuda.is_available(): # cuda device
         device='cuda'
         torch.cuda.set_device(GPU)
+        torch.cuda.manual_seed(seed)
         torch.cuda.manual_seed_all(seed)
     else:
         device='cpu'
     
-    torch.manual_seed(seed)
+    torch.set_num_threads(1)  # Suggested for issues with deadlocks, etc.
+
     model.to(device)
     model.train()
     early_stopping = EarlyStopping(patience=patience, checkpoint_file=os.path.join(outdir,'model.pt'))
+    
+    y_loss = {}  # loss history
+    y_loss['feature_loss'] = []
+    y_loss['graph_loss'] = []
+    y_loss['loss']=[]
+    x_epoch = []
+    fig = plt.figure()
 
     for epoch in tqdm(range(0, epoch+1)):
         epoch_loss = 0.0
+        loss1 = 0.0
+        loss2 = 0.0
         optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=5e-4)
         epoch_lr=adjust_learning_rate(lr, optimizer, epoch, seperation=50)
             
@@ -108,6 +124,10 @@ def train_SPACE(model, train_data, outdir, epoch=5000,lr=0.005, a=0.5,loss_type=
         loss.backward()
         optimizer.step()
         epoch_loss += loss.item()
+        
+        loss1 += graph_loss.item()
+        loss2 += feature_loss.item()
+       
             
         # if epoch%50==0:
         #     if verbose:
@@ -122,9 +142,24 @@ def train_SPACE(model, train_data, outdir, epoch=5000,lr=0.005, a=0.5,loss_type=
             if epoch%50==0:
                 print('====> Epoch: {}, Loss: {:.4f}'.format(epoch, epoch_loss)) 
         early_stopping(epoch_loss, model)
+        # plot loss
+        y_loss['feature_loss'].append(loss2)
+        y_loss['graph_loss'].append(loss1)
+        y_loss['loss'].append(epoch_loss)
+        x_epoch.append(epoch)
+        plt.plot(x_epoch, y_loss['loss'], 'go-', label='loss',linewidth=1, markersize=2)
+        plt.plot(x_epoch, y_loss['graph_loss'], 'ro-', label='graph_loss',linewidth=1, markersize=2)
+        plt.plot(x_epoch, y_loss['feature_loss'], 'bo-', label='feature_loss',linewidth=1, markersize=2)
+        if len(x_epoch)==1:
+            plt.legend()
+        
         if early_stopping.early_stop:
             print('====> Epoch: {}, Loss: {:.4f}'.format(epoch, epoch_loss)) 
             print('EarlyStopping: run {} iteration'.format(epoch))
             break
+    
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    fig.savefig(os.path.join(outdir, 'train_loss.pdf'))
     
     return device

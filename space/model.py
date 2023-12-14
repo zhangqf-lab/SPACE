@@ -9,14 +9,15 @@ import torch
 from torch.nn import Sequential, Linear, ReLU, BatchNorm1d, Dropout, Sigmoid, LeakyReLU
 from torch_geometric.nn import GAE, InnerProductDecoder
 from torch_geometric.utils import (negative_sampling, remove_self_loops, add_self_loops)
+from torch_geometric import seed_everything
 
 EPS = 1e-15
-
+seed = 42
 
 class SPACE_Graph(GAE):
     def __init__(self, encoder, decoder,loss_type='MSE'):
         super(SPACE_Graph, self).__init__(encoder, decoder)
-        
+        seed_everything(seed)
         self.decoder = InnerProductDecoder()
         
         if loss_type == 'BCE':
