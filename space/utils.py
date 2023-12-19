@@ -20,6 +20,93 @@ from .layer import GAT_Encoder
 from .model import SPACE_Graph
 
 
+def celltype_connectivity(adata,domain_key= 'Label',celltype_key = 'cluster',nboot=100, outdir='./data'):
+    import holoviews as hv
+    import squidpy as sq
+    import pandas as pd
+    from tqdm import tqdm
+    import random
+
+    random.seed(42)
+    os.makedirs(outdir, exist_ok=True)
+
+    sq.gr.spatial_neighbors(adata, n_neighs = 20, coord_type = 'generic') 
+
+    for label in adata.obs[domain_key].unique():
+        # CCI
+        adata_batch = adata[adata.obs[domain_key] == label].copy()  
+        cell_types = adata_batch.obs[celltype_key].unique().tolist()
+        sq.gr.interaction_matrix(adata_batch, cluster_key=celltype_key)
+        CCI1=adata_batch.uns['{}_interactions'.format(celltype_key)].copy()
+        CCI2=CCI1.T.copy()
+        CCI=((CCI1+CCI2)/2).round()
+        pairwise_connection=pd.DataFrame(CCI,
+                                         index=adata_batch.obs[celltype_key].cat.categories,
+                                         columns=adata_batch.obs[celltype_key].cat.categories)
+        
+        pairwise_connection[pairwise_connection<=0]=1e-10
+        
+        
+        df_p=pd.DataFrame(columns=['celltype1','celltype2','p'])
+        for i in range(0,len(cell_types)):
+            for j in range(i,len(cell_types)):
+                df_p=df_p.append(pd.DataFrame({'celltype1':cell_types[i],
+                                               'celltype2':cell_types[j],
+                                               'p':[0]}),ignore_index=True)
+        
+        # permutation
+        for j in range(nboot):
+            adata_p=adata_batch.copy()
+            celltype_p=list(adata_batch.obs[celltype_key].values.copy())
+            random.shuffle(celltype_p)
+            adata_p.obs[celltype_key]=celltype_p
+            adata_p.obs[celltype_key]=adata_p.obs[celltype_key].astype('category')
+            
+            sq.gr.interaction_matrix(adata_p, cluster_key=celltype_key)
+            CCI1=adata_p.uns['{}_interactions'.format(celltype_key)].copy()
+            CCI2=CCI1.T.copy()
+            CCI=((CCI1+CCI2)/2).round()
+            pairwise_connection_p = pd.DataFrame(CCI,
+                                                 index=adata_p.obs[celltype_key].cat.categories,
+                                                 columns=adata_p.obs[celltype_key].cat.categories)
+            pairwise_connection_p[pairwise_connection_p<=0]=1e-10
+            
+            
+            pairwise_connection_d=pairwise_connection_p-pairwise_connection
+            for i in df_p.index:
+                idx1=df_p.loc[i,'celltype1']
+                idx2=df_p.loc[i,'celltype2']
+                if pairwise_connection_d.loc[idx1,idx2]>=0:
+                    df_p.loc[i,'p']=df_p.loc[i,'p']+1
+            
+        df_p['p']=df_p['p']/nboot
+        
+        # save data
+        celltype_sum=pd.DataFrame(adata_batch.obs[celltype_key].value_counts())
+        celltype_sub=celltype_sum[celltype_sum[celltype_key]>=10].copy()
+        df=pairwise_connection.loc[celltype_sum.index,celltype_sum.index].copy()
+        
+        df.to_csv(os.path.join(outdir,'{}_prob.csv'.format(label)))
+        celltype_sub.to_csv(os.path.join(outdir,'{}_size.csv'.format(label)))
+        
+        # from statsmodels.stats.multitest import fdrcorrection
+        # df_p['p_adj']=fdrcorrection(df_p['p'])[1]
+        
+        df_p_m=pd.DataFrame(index=celltype_sum.index,columns=celltype_sum.index)
+        for i in df_p.index:
+            idx1=df_p.loc[i,'celltype1']
+            idx2=df_p.loc[i,'celltype2']
+            df_p_m.loc[idx1,idx2]=df_p.loc[i,'p']
+            df_p_m.loc[idx2,idx1]=df_p.loc[i,'p']
+            # df_p_m.loc[idx1,idx2]=df_p.loc[i,'p_adj']
+            # df_p_m.loc[idx2,idx1]=df_p.loc[i,'p_adj']
+        df_p_m = df_p_m.fillna(1)
+        df_p_m[df_p_m==0]=1e-10
+        df_p.to_csv(os.path.join(outdir,'{}_p.csv'.format(label)),index=None)
+        df_p_m.to_csv(os.path.join(outdir,'{}_prob_p.csv'.format(label)))
+           
+    return adata
+
 
 def mad_gap(x, edge_index):
 
