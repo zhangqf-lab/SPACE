@@ -1,6 +1,7 @@
 [![Stars](https://img.shields.io/github/stars/zhangqf-lab/SPACE?logo=GitHub&color=yellow)](https://github.com/zhangqf-lab/SPACE) [![PyPI](https://img.shields.io/pypi/v/space-srt.svg)](https://pypi.org/project/space-srt)
 
 # **SP**atial transcriptomics **A**nalysis via **C**ell **E**mbedding
+Spatial transcriptomics data analysis via interaction-aware cell embedding reveals cell communities with characteristic cell-cell interactions
 
 ## Installation  	
 #### install from PyPI
