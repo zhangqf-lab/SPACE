@@ -25,3 +25,8 @@ SPACE can be run on CPU devices, and running SPACE on GPU devices if available i
 
 ### Tutorial
 A brief tutorial can be found [here](https://tutorial-space.readthedocs.io/en/latest/).（Still in progress）
+
+### Citation
+If you use SPACE in your research, please cite our paper:
+
+Li, Y., Zhang J., Gao, X., and Zhang, Q.C. Tissue module discovery in single-cell resolution spatial transcriptomics data via cell- cell interaction-aware cell embedding. Cell Systems 2024 (Accepted)
