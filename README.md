@@ -4,6 +4,10 @@
 SPACE (**SP**atial transcriptomics **A**nalysis via **C**ell **E**mbedding)
 
 ## Installation  	
+
+SPACE is implemented in [Pytorch](https://pytorch.org/) framework.  
+SPACE can be run on CPU devices, and running SPACE on GPU devices if available is recommended.   
+
 ### Software dependencies
 #### Install Pytorch
 Please install Pytorch in advance by following the instructions on : https://pytorch.org/get-started/locally/
@@ -27,9 +31,6 @@ git clone https://github.com/zhangqf-lab/SPACE.git
 cd SPACE
 python setup.py install
 ```
-
-SPACE is implemented in [Pytorch](https://pytorch.org/) framework.  
-SPACE can be run on CPU devices, and running SPACE on GPU devices if available is recommended.   
 
 ## Tutorial
 A brief tutorial can be found [here](https://tutorial-space.readthedocs.io/en/latest/).（Still in progress）
