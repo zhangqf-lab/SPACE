@@ -13,7 +13,7 @@ SPACE can be run on CPU devices, and running SPACE on GPU devices if available i
 Please install Pytorch in advance by following the instructions on : https://pytorch.org/get-started/locally/
 
 #### Install PyTorch Geometric
-Please install PyTorch Geometric in advance by following the instructions on : [https://pytorch.org/get-started/locally/](https://pytorch-geometric.readthedocs.io/en/latest/install/installation.html)
+Please install PyTorch Geometric in advance by following the instructions on : https://pytorch-geometric.readthedocs.io/en/latest/install/installation.html
 
 
 ### Install SPACE from PyPI
