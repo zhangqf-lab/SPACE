@@ -38,4 +38,4 @@ A brief tutorial can be found [here](https://tutorial-space.readthedocs.io/en/la
 ## Citation
 If you use SPACE in your research, please cite our paper:
 
-Li, Y., Zhang J., Gao, X., and Zhang, Q.C. Tissue module discovery in single-cell resolution spatial transcriptomics data via cell- cell interaction-aware cell embedding. Cell Systems 2024 (Accepted)
+Li, Y., Zhang J., Gao, X., and Zhang, Q.C. Tissue module discovery in single-cell resolution spatial transcriptomics data via cell- cell interaction-aware cell embedding. Cell Systems 2024 ([paper](https://www.cell.com/cell-systems/fulltext/S2405-4712(24)00124-8?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS2405471224001248%3Fshowall%3Dtrue))
