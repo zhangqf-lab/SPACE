@@ -27,7 +27,7 @@ from .utils import graph_construction
 
 def SPACE(adata,k=20,graph_const_method='SPACE',alpha=0.5,seed=42,GPU=0,epoch=5000,lr=0.005,patience=50,outdir='./',loss_type='MSE',save_attn=False,verbose=False,heads=6):
     """
-    Single-Cell integrative Analysis via Latent feature Extraction
+    SPACE
     
     Parameters
     ----------
